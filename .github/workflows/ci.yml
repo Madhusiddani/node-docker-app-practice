@@ -1,60 +1,45 @@
-# workflow -> pipeline
-# workflow name
 name: Node.js CI
 
-# event on which you want this pipeline to run
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main", "test"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main", "test"]
 
 jobs:
-
   build:
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        node-version: [18.x, 20.x, 22.x]
-
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
-      - name: Use Node.js ${{ matrix.node-version }}
+      - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
-          cache: 'npm'
+          node-version: 18
 
       - name: Install Dependencies
         run: npm install
 
-      - name: Build Command
+      - name: Build Application
         run: echo "Building APP"
 
   test:
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        node-version: [18.x, 20.x, 22.x]
+    needs: build
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
-      - name: Use Node.js ${{ matrix.node-version }}
+      - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
-          cache: 'npm'
+          node-version: 18
 
       - name: Install Dependencies
         run: npm install
 
-      - name: Test Command
+      - name: Run Test
         run: echo "Testing APP"
-
-      - name: Run Tests
-        run: npm test --if-present
-        

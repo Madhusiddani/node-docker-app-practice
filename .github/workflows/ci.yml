@@ -1,45 +1,64 @@
+# This workflow will do a clean installation of node dependencies, cache/restore them, build the source code and run tests across different versions of node
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-nodejs
+
+# workflow -> pipeline
+# workflow name
 name: Node.js CI
 
+# event on which you want this pipeline to run
 on:
   push:
-    branches: ["main", "test"]
+    branches: [ "main" ]
   pull_request:
-    branches: ["main", "test"]
+    branches: [ "main" ]
 
 jobs:
   build:
+
     runs-on: ubuntu-latest
 
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x, 22.x]
+        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
+    - uses: actions/checkout@v4
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+        #actual commands
+    - name: Build Command
+      run: echo "Building APP"
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 18
-
-      - name: Install Dependencies
-        run: npm install
-
-      - name: Build Application
-        run: echo "Building APP"
 
   test:
+
     runs-on: ubuntu-latest
-    needs: build
+
+    strategy:
+      matrix:
+        node-version: [20.x, 22.x, 24.x]
+        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
+    - uses: actions/checkout@v4
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+        #actual commands
+    - name: Install Dependencies
+      run: npm install
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 18
+    - name: Test Command
+      run: echo "Testing APP"
 
-      - name: Install Dependencies
-        run: npm install
+    - name: Run Tests
+      run: npm test
 
-      - name: Run Test
-        run: echo "Testing APP"
+    # - name : Test cases ran successfully
+    #   run: echo "Testing done successfully!"

@@ -56,4 +56,5 @@ jobs:
         run: echo "Testing APP"
 
       - name: Run Tests
-        run: npm test 
+        run: npm test --if-present
+        
